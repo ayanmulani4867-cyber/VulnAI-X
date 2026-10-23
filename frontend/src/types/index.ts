@@ -156,6 +156,7 @@ export interface DashboardStats {
 export interface SystemHealth {
   status: string;
   database: string;
+  database_engine?: string;
   worker_status: string;
   last_heartbeat?: string;
   active_jobs: number;

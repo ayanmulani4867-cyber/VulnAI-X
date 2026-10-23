@@ -68,7 +68,9 @@ export const SystemHealth: React.FC<{
           <div className="stat-value" style={{ color: '#6EE7B7' }}>
             {health?.database === 'healthy' ? 'Operational' : 'Degraded'}
           </div>
-          <div className="stat-footer">SQLite Local / PostgreSQL Cloud</div>
+          <div className="stat-footer">
+            {health?.database_engine === 'postgresql' ? 'Neon PostgreSQL (Cloud SSL)' : 'SQLite (Local Engine)'}
+          </div>
         </div>
 
         <div className="stat-card">

@@ -119,7 +119,7 @@ Run the complete test suite with `pytest`:
 ```powershell
 .\.venv\Scripts\python.exe -m pytest backend/tests -v
 ```
-All 23 automated tests covering authentication, fail-closed scope enforcement, SSRF protections, worker crash recovery, finding deduplication, PDF generation, and duplicate email suppression execute in ~8 seconds.
+All 26 automated tests covering authentication, fail-closed scope enforcement, SSRF protections, worker crash recovery, finding deduplication, PDF generation, and duplicate email suppression execute in ~12 seconds.
 
 ---
 
@@ -129,7 +129,7 @@ For complete cloud deployment instructions and an honest evaluation of free-tier
 
 - **Frontend**: Deploy to Vercel or Cloudflare Pages for ₹0/month.
 - **Backend**: Deploy to Render or Koyeb free tier.
-- **Database**: Persistent PostgreSQL hosted on Neon.tech (₹0/month, SSL enabled).
+- **Database**: Persistent Serverless PostgreSQL hosted on Neon.tech (₹0/month, SSL enabled, connection pooler supported).
 - **Scheduled Autonomous Cloud Worker**: GitHub Actions cron workflow (`.github/workflows/scheduled_research.yml`). Executes scheduled research jobs autonomously in the cloud without keeping your local Windows PC switched on!
 
 ---

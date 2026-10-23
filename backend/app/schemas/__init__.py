@@ -219,6 +219,7 @@ class EmailTestRequest(BaseModel):
 class SystemHealthResponse(BaseModel):
     status: str
     database: str
+    database_engine: Optional[str] = None
     worker_status: str
     last_heartbeat: Optional[datetime] = None
     active_jobs: int

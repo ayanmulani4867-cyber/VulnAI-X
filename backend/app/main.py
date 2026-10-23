@@ -13,10 +13,13 @@ async def lifespan(app: FastAPI):
     # Initialize DB Schema
     Base.metadata.create_all(bind=engine)
     
-    # Safe migration for existing SQLite DBs
+    # Safe migration for existing SQLite and PostgreSQL DBs
     with engine.connect() as conn:
         try:
-            conn.execute(text("ALTER TABLE users ADD COLUMN must_change_password BOOLEAN DEFAULT 0"))
+            if engine.dialect.name == "postgresql":
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN DEFAULT FALSE"))
+            else:
+                conn.execute(text("ALTER TABLE users ADD COLUMN must_change_password BOOLEAN DEFAULT 0"))
             conn.commit()
         except Exception:
             pass

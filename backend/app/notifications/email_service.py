@@ -12,7 +12,13 @@ class EmailService:
         self.db = db
 
     def is_configured(self) -> bool:
-        return bool(settings.SMTP_HOST and settings.SMTP_FROM and settings.NOTIFICATION_EMAIL_TO)
+        if settings.APP_ENV == "testing":
+            return False
+        if not settings.SMTP_HOST or not settings.SMTP_FROM:
+            return False
+        if settings.SMTP_PASSWORD in (None, "", "your-app-password"):
+            return False
+        return True
 
     async def send_alert(
         self,
@@ -51,15 +57,15 @@ class EmailService:
             self.db.commit()
             return True, "Notification suppressed (duplicate alert prevention)."
 
-        # 2. Check if SMTP is configured
-        if not settings.SMTP_HOST:
+        # 2. Check if SMTP is configured with real credentials
+        if not self.is_configured():
             # Simulated / Logged mode for dev & ₹0 free tier when SMTP credentials are not yet entered
             log = NotificationLog(
                 recipient=to_email,
                 subject=subject,
                 event_type=event_type,
                 status="sent",
-                error_message="Simulated dispatch: SMTP_HOST not configured. Notification recorded in database."
+                error_message="Simulated dispatch: SMTP not configured or using placeholder credentials. Notification recorded in database."
             )
             self.db.add(log)
             self.db.commit()

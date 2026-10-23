@@ -14,6 +14,10 @@ from app.models import User, AuthorizedProgram, ScopeEntry
 from app.security.auth import get_password_hash, create_access_token
 from app.config import settings
 
+# Force test configuration
+settings.APP_ENV = "testing"
+settings.SMTP_HOST = None
+
 # In-memory test SQLite DB
 TEST_DATABASE_URL = "sqlite:///:memory:"
 test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})

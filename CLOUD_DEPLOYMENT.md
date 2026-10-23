@@ -54,14 +54,29 @@ To achieve true autonomous scheduling in the cloud without keeping your PC power
 
 ## 3. Step-by-Step Cloud Deployment Instructions
 
-### Step 3.1: Persistent Database Setup (Neon.tech - ₹0)
+### Step 3.1: Persistent Database Setup (Neon.tech Serverless PostgreSQL - ₹0)
 1. Sign up at [https://neon.tech](https://neon.tech) (no credit card required).
 2. Create a free project named `vulnaix-db`.
-3. Copy your connection string:
-   ```
-   postgresql://[user]:[password]@[host]/neondb?sslmode=require
-   ```
-4. This database remains persistently stored in the cloud.
+3. In the Neon Console Dashboard:
+   - Select the **Connection Details** widget.
+   - Choose **Pooled connection** (uses the `-pooler` hostname for optimized connection pooling via PgBouncer).
+   - Ensure **SSL Mode** is set to `require`.
+   - Copy the connection URI:
+     ```
+     postgresql://[user]:[password]@[ep-id-pooler].[region].aws.neon.tech/neondb?sslmode=require&channel_binding=require
+     ```
+4. **Serverless Compute & Connection Pooling Architecture**:
+   - Neon serverless compute automatically pauses when inactive to preserve resources, resuming within milliseconds on incoming queries.
+   - VulnAI X's SQLAlchemy 2.x engine (`backend/app/database.py`) automatically enables:
+     - `pool_pre_ping=True`: Verifies socket health before checkout, seamlessly recovering from serverless auto-suspension.
+     - `pool_recycle=300`: Reconnects every 5 minutes to avoid stale sockets.
+     - `pool_size=10` with `max_overflow=20`: Bounds connection concurrency to fit comfortably within Neon free tier limits.
+5. **Where to store this secret**:
+   - **Local Development**: In `C:\VulnAI-X\.env` (`DATABASE_URL=postgresql://...`). Note that `.env` is gitignored and never committed.
+   - **Cloud Web Hosting (Render / Koyeb)**: In the provider's **Environment Variables** dashboard settings.
+   - **Scheduled Cloud Worker (GitHub Actions)**: In repository **Settings -> Secrets and variables -> Actions** as `DATABASE_URL`.
+6. **Automatic Schema Initialization & Non-Destructive Migrations**:
+   - On application startup, VulnAI X executes `Base.metadata.create_all()` and safe column migrations (`IF NOT EXISTS`). Existing data and tables are never dropped.
 
 ### Step 3.2: React Frontend Deployment (Vercel - ₹0)
 1. Push this repository to GitHub.

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from app.database import get_db
+from app.database import get_db, engine
 from app.models import WorkerHeartbeat, ResearchJob
 from app.schemas import SystemHealthResponse
 from app.config import settings
@@ -36,6 +36,7 @@ def health_check(db: Session = Depends(get_db)):
     return SystemHealthResponse(
         status=overall_status,
         database=db_status,
+        database_engine=engine.dialect.name,
         worker_status=worker_status,
         last_heartbeat=worker.last_heartbeat if worker else None,
         active_jobs=active_jobs,
