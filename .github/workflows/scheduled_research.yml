@@ -1,0 +1,62 @@
+name: VulnAI X Autonomous Scheduled Worker
+
+on:
+  schedule:
+    # Runs daily at 02:00 UTC (Configurable schedule for ₹0 autonomous execution)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  research-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Security Tools & Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install semgrep || true
+
+      - name: Run VulnAI X Scheduled Research Worker
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          APP_ENV: production
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: 587
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          NOTIFICATION_EMAIL_TO: ${{ secrets.NOTIFICATION_EMAIL_TO }}
+        run: |
+          cd backend
+          python -c "
+          import asyncio
+          from app.worker.worker import AutonomousWorker
+          from app.database import SessionLocal
+          from app.models import ResearchJob
+          
+          async def run_scheduled():
+              worker = AutonomousWorker(worker_id='github-actions-runner')
+              worker.recover_unfinished_jobs()
+              jobs_processed = 0
+              max_jobs_per_run = 10
+              while jobs_processed < max_jobs_per_run:
+                  executed = await worker.process_next_job()
+                  if not executed:
+                      break
+                  jobs_processed += 1
+              print(f'[+] Scheduled worker completed run. Processed {jobs_processed} queued jobs.')
+          
+          asyncio.run(run_scheduled())
+          "
