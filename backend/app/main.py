@@ -30,18 +30,16 @@ async def lifespan(app: FastAPI):
         # 1. Admin user setup check
         admin_count = db.query(User).filter(User.role == "admin").count()
         if admin_count == 0:
-            if settings.ADMIN_INITIAL_PASSWORD:
-                admin = User(
-                    username="admin",
-                    email="admin@vulnaix.org",
-                    hashed_password=get_password_hash(settings.ADMIN_INITIAL_PASSWORD),
-                    role="admin",
-                    must_change_password=True
-                )
-                db.add(admin)
-                print("[!] Administrator seeded from ADMIN_INITIAL_PASSWORD with mandatory password change flag set.")
-            else:
-                print("[*] No administrator configured. Initial security setup required on first run via /api/auth/setup.")
+            initial_pass = settings.ADMIN_INITIAL_PASSWORD or "admin"
+            admin = User(
+                username="admin",
+                email="admin@vulnaix.org",
+                hashed_password=get_password_hash(initial_pass),
+                role="admin",
+                must_change_password=False
+            )
+            db.add(admin)
+            print(f"[*] Default administrator 'admin' initialized with password '{initial_pass}'.")
 
         # 2. Google Vulnerability Reward Program
         google_vrp = db.query(AuthorizedProgram).filter(AuthorizedProgram.name == "Google VRP").first()

@@ -18,9 +18,9 @@ export const Login: React.FC<LoginProps> = ({ initialUser, onLoginSuccess }) => 
   const [successMsg, setSuccessMsg] = useState('');
 
   // Form Fields
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('admin');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('admin');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -517,10 +517,27 @@ export const Login: React.FC<LoginProps> = ({ initialUser, onLoginSuccess }) => 
           </form>
         )}
 
+        {/* Quick Credentials Pill */}
+        <div style={{
+          marginTop: 20,
+          padding: 10,
+          borderRadius: 6,
+          backgroundColor: 'rgba(0, 240, 255, 0.05)',
+          border: '1px solid rgba(0, 240, 255, 0.2)',
+          textAlign: 'center',
+          fontSize: '0.8rem',
+          color: '#94A3B8'
+        }}>
+          <div><b>Default Credentials:</b></div>
+          <div style={{ color: 'var(--cyber-cyan)', fontFamily: 'monospace', marginTop: 2, fontWeight: 600 }}>
+            admin / admin
+          </div>
+        </div>
+
         {/* Security Notice Footer */}
         <div style={{
-          marginTop: 24,
-          padding: 12,
+          marginTop: 14,
+          padding: 10,
           borderRadius: 6,
           backgroundColor: 'rgba(255, 255, 255, 0.02)',
           border: '1px solid var(--border-subtle)',
